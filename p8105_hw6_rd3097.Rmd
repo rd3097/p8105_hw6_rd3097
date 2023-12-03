@@ -1,6 +1,6 @@
 ---
 title: "p8105_hw6_rd3097"
-output: html_document
+output: github_document
 date: "2023-12-03"
 ---
 
@@ -104,11 +104,6 @@ model_plot<-clean_birthweight%>%
 ```
 
 ```{r}
-# One model using length at birth and gestational age as predictors 
-model_1 <- lm(bwt ~ blength + gaweeks, data = clean_birthweight)
-
-# One model using head circumference, length, sex, and all interactions between these
-model_2 <- lm(bwt ~ bhead + blength + babysex + bhead * blength * babysex, data = clean_birthweight)
 
 # Make comparison in terms of the cross-validated prediction error between these two model with our model_lm
 
@@ -121,8 +116,10 @@ model_2 <- lm(bwt ~ bhead + blength + babysex + bhead * blength * babysex, data 
 rmse_df <- cv_df%>%
   mutate(
     model_lm = map(train, ~lm(bwt ~gaweeks+malform+smoken+mrace, data = clean_birthweight), data = .x),
-    model_1  = map(train, ~lm(bwt ~ gaweeks + blength, data = .x)),
-    model_2  = map(train, ~lm(bwt ~ bhead*blength*babysex, data = .x)),
+    # One model using length at birth and gestational age as predictors 
+    model_1  = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
+    # One model using head circumference, length, sex, and all interactions between these
+    model_2  = map(train, ~lm(bwt ~ bhead * blength * babysex, data = .x)),
     rmse_lm = map2_dbl(model_lm, test, ~rmse(model = .x, data = .y)),
     rmse_1 = map2_dbl(model_1, test, ~rmse(model = .x, data = .y)),
     rmse_2 = map2_dbl(model_2, test, ~rmse(model = .x, data = .y)))
