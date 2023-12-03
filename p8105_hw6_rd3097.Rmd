@@ -1,0 +1,52 @@
+---
+title: "p8105_hw6_rd3097"
+output: html_document
+date: "2023-12-03"
+---
+
+Necessary Library
+```{r}
+library(tidyverse)
+library(modelr)
+library(rnoaa)
+
+```
+
+### Problem 2
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2022-01-01",
+    date_max = "2022-12-31") |>
+  mutate(
+    name = recode(id, USW00094728 = "CentralPark_NY"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) |>
+  select(name, id, everything())
+```
+
+```{r}
+#First we focus on estimate of r squared
+weather_fit <- weather_df %>% 
+  modelr::bootstrap(n = 5000) %>% 
+  mutate(
+    models = map(strap, ~lm(tmax ~ tmin+prcp, data = .x) ),
+    results = map(models, broom::glance)) %>%
+  select(-strap, -models)%>%
+  unnest(results)
+
+
+r_square_plot<-weather_fit%>%
+  ggplot(aes(x = r.squared))+geom_density()
+
+r_square<- weather_fit%>%
+summarize(r_squared_lower = quantile(r.squared, 0.025),
+  r_squared_upper = quantile(r.squared, 0.975))
+                      
+```
+```{r}
+
+```
+
