@@ -1,6 +1,6 @@
 ---
 title: "p8105_hw6_rd3097"
-output: github_document
+output: html_document
 date: "2023-12-03"
 ---
 
